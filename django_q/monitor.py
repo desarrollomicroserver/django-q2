@@ -114,7 +114,9 @@ def save_task(task, broker: Broker):
             filters[Conf.SAVE_LIMIT_PER] = value
 
         with db.transaction.atomic(using=db.router.db_for_write(Success)):
-            last = Success.objects.filter(**filters).select_for_update().last()
+            # select_for_update() no es compatible con Oracle Backend
+            # last = Success.objects.filter(**filters).select_for_update().last()
+            last = Success.objects.filter(**filters).last()
             if (
                 task["success"]
                 and 0 < Conf.SAVE_LIMIT <= Success.objects.filter(**filters).count()
